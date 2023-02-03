@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         // you want
         primarySwatch: Colors.blue,
       ),
-      home: ProjectSelectionPage(title: '프로젝트 선택'),
+      home: const ProjectSelectionPage(title: '프로젝트 선택'),
     );
   }
 }
@@ -37,65 +37,9 @@ class ProjectSelectionPage extends StatefulWidget {
   // always marked "final".
 
   @override
-  _ProjectSelectionPageState createState() => _ProjectSelectionPageState();
+  ProjectSelectPageState createState() => ProjectSelectPageState();
 }
-
-class _listViewProjectWidget extends StatelessWidget{
-  const _listViewProjectWidget(this.counter, {super.key});
-
-  final int counter;
-
-  @override
-  Widget build(BuildContext context){
-    return Container(
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color : Colors.green,
-        borderRadius: BorderRadius.circular(15)
-      ),
-      child: Material(
-          color:Colors.transparent,
-          child : InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>SubjectSelectionPage(subject_title: counter.toString()))); },
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20.0),
-              ),
-              focusColor : Colors.red,
-              child : Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children : <Widget> [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                        children:<Widget>[
-                          Text('프로젝트 명 : $counter',
-                              style : const TextStyle(fontSize : 25),
-                              textAlign: TextAlign.start),
-                          Expanded(
-                            child: Text('생성 라인 : $counter',
-                                style : const TextStyle(fontSize : 18),
-                                selectionColor: Colors.red,
-                                textAlign: TextAlign.end),
-                          ),
-                        ]
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(5),
-                    child: const Text('프로젝트 설명 : ',
-                        style : TextStyle(fontSize: 15),
-                        textAlign : TextAlign.start),
-                  ),
-                ],
-              )
-          ),
-      ),
-    );
-  }
-}
-class _ProjectSelectionPageState extends State<ProjectSelectionPage> {
+class ProjectSelectPageState extends State<ProjectSelectionPage> {
   int _counter = 0;
   void _incrementCounter() {
     setState(() {
@@ -132,7 +76,7 @@ class _ProjectSelectionPageState extends State<ProjectSelectionPage> {
                   child: ListView.builder(
                     itemCount : _counter+1,
                     itemBuilder: (BuildContext context, int index){
-                      return _listViewProjectWidget(index);
+                      return ListViewProjectWidget(index);
                     },
                   ),
                 ),
@@ -152,6 +96,61 @@ class _ProjectSelectionPageState extends State<ProjectSelectionPage> {
           ),
         )
       // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+class ListViewProjectWidget extends StatelessWidget{
+  const ListViewProjectWidget(this.counter, {super.key});
+
+  final int counter;
+
+  @override
+  Widget build(BuildContext context){
+    return Container(
+      margin: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color : Colors.green,
+          borderRadius: BorderRadius.circular(15)
+      ),
+      child: Material(
+        color:Colors.transparent,
+        child : InkWell(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>SubjectSelectPage(subjectTitle: counter.toString()))); },
+            borderRadius: const BorderRadius.all(
+              Radius.circular(20.0),
+            ),
+            focusColor : Colors.red,
+            child : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children : <Widget> [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                      children:<Widget>[
+                        Text('프로젝트 명 : $counter',
+                            style : const TextStyle(fontSize : 25),
+                            textAlign: TextAlign.start),
+                        Expanded(
+                          child: Text('생성 라인 : $counter',
+                              style : const TextStyle(fontSize : 18),
+                              selectionColor: Colors.red,
+                              textAlign: TextAlign.end),
+                        ),
+                      ]
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(5),
+                  child: const Text('프로젝트 설명 : ',
+                      style : TextStyle(fontSize: 15),
+                      textAlign : TextAlign.start),
+                ),
+              ],
+            )
+        ),
+      ),
     );
   }
 }

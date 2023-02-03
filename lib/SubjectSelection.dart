@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/TestSelection.dart';
 
-class SubjectSelectionPage extends StatefulWidget {
-  final String subject_title;
-  const SubjectSelectionPage({Key? key, required this.subject_title}) : super(key: key);
+class SubjectSelectPage extends StatefulWidget {
+  final String subjectTitle;
+  const SubjectSelectPage({Key? key, required this.subjectTitle}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -15,9 +15,9 @@ class SubjectSelectionPage extends StatefulWidget {
   // always marked "final".
 
   @override
-  _SubjectPageState createState() => _SubjectPageState();
+  SubjectSelectPageState createState() => SubjectSelectPageState();
 }
-class _SubjectPageState extends State<SubjectSelectionPage> {
+class SubjectSelectPageState extends State<SubjectSelectPage> {
   int _counter = 0;
   void _incrementCounter() {
     setState(() {
@@ -42,7 +42,7 @@ class _SubjectPageState extends State<SubjectSelectionPage> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.subject_title),
+          title: Text(widget.subjectTitle),
         ),
         body: Container(
           color: Colors.lightGreenAccent,
@@ -53,7 +53,7 @@ class _SubjectPageState extends State<SubjectSelectionPage> {
                   child: ListView.builder(
                     itemCount : _counter+1,
                     itemBuilder: (BuildContext context, int index){
-                      return _listViewSubjectWidget(index);
+                      return ListViewSubjectWidget(index);
                     },
                   ),
                 ),
@@ -61,7 +61,7 @@ class _SubjectPageState extends State<SubjectSelectionPage> {
                   alignment : Alignment.bottomRight,
                   child : Container(
                     color : Colors.black12,
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: FloatingActionButton(
                       onPressed: () {
                         _incrementCounter();
@@ -76,8 +76,8 @@ class _SubjectPageState extends State<SubjectSelectionPage> {
     );
   }
 }
-class _listViewSubjectWidget extends StatelessWidget{
-  const _listViewSubjectWidget(this.counter, {super.key});
+class ListViewSubjectWidget extends StatelessWidget{
+  const ListViewSubjectWidget(this.counter, {super.key});
 
   final int counter;
 

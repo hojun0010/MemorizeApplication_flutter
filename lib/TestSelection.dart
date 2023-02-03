@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/Test.dart';
 
 class TestSelectionPage extends StatefulWidget{
   final String testTitle;
@@ -83,7 +84,7 @@ class _listViewTestWidget extends StatelessWidget{
         color:Colors.transparent,
         child : InkWell(
             onTap: (){
-              // Navigator.push(context, MaterialPageRoute(builder: (context) =>TestSelectionPage(testTitle: counter.toString(),)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: counter.toString(),)));
             },
             borderRadius: const BorderRadius.all(
               Radius.circular(20.0),
