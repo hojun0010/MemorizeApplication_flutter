@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/Test.dart';
+import 'package:myapp/TestAdd.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'dart:ui';
+
+
+const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      // Application name
+      title: 'Flutter Memorize Application',
+      theme: ThemeData(
+        // Application theme data, you can set the colors for the application as
+        // you want
+        primarySwatch: Colors.blue,
+      ),
+      home: const SubjectSelectPage(subjectTitle: '과목 선택'),
+    );
+  }
+}
 
 class SubjectSelectPage extends StatefulWidget {
   final String subjectTitle;
@@ -20,8 +44,16 @@ class SubjectSelectPage extends StatefulWidget {
   SubjectSelectPageState createState() => SubjectSelectPageState();
 }
 class SubjectSelectPageState extends State<SubjectSelectPage> {
-  int _counter = 0;
+  late int _counter;
+  late String _subjectTitle;
+  @override
+  void initState(){
+    super.initState();
+    _subjectTitle = widget.subjectTitle;
+    _counter = 0; //subject.txt 파일 읽어서 첫번째줄의 subject 개수를 갖고와야한다.
+  }
   void _incrementCounter() {
+    //과목 추가시 _counter 증가하고 subject.txt 에서 변경사항 저장
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -35,7 +67,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
   @override
   Widget build(BuildContext context) {
     double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    double realWidth =window.physicalSize.width;
+    double realWidth = window.physicalSize.width;
     double realHeight = window.physicalSize.height;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -46,56 +78,60 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
     var childButtons = List<UnicornButton>.empty(growable: true);
 
     childButtons.add(UnicornButton(
-        hasLabel: true,
-        labelText: "Choo choo",
-        currentButton: FloatingActionButton(
-          heroTag: "train",
-          backgroundColor: Colors.redAccent,
-          mini: true,
-          child: const Icon(Icons.train),
-          onPressed: () {},
-        ),));
+      hasLabel: true,
+      labelText: "단어장 생성",
+      currentButton: FloatingActionButton(
+        heroTag: "CreateTest",
+        backgroundColor: Colors.redAccent,
+        mini: true,
+        child: const Icon(Icons.train),
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) =>TestAddPage(subjectTitle: _subjectTitle)));
+        },
+      ),));
     childButtons.add(UnicornButton(
-        currentButton: FloatingActionButton(
-            heroTag: "airplane",
-            backgroundColor: Colors.greenAccent,
-            mini: true,
-            onPressed: () {  },
-            child: const Icon(Icons.airplanemode_active)),));
+      hasLabel: true,
+      labelText: "단어장 파일 추가",
+      currentButton: FloatingActionButton(
+          heroTag: "AddTestFile",
+          backgroundColor: Colors.greenAccent,
+          mini: true,
+          onPressed: () {  },
+          child: const Icon(Icons.airplanemode_active)),));
 
     childButtons.add(UnicornButton(
-        currentButton: FloatingActionButton(
-            heroTag: "directions",
-            backgroundColor: Colors.blueAccent,
-            mini: true,
-            onPressed: () {  },
-            child: Icon(Icons.directions_car)),));
+      currentButton: FloatingActionButton(
+          heroTag: "directions",
+          backgroundColor: Colors.blueAccent,
+          mini: true,
+          onPressed: () {  },
+          child: Icon(Icons.directions_car)),));
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.subjectTitle),
-        ),
-        body: Container(
-          width: realWidth,
-          height: realHeight,
-          color: Colors.lightGreenAccent,
-          margin: EdgeInsets.all(10),
-          child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount : _counter+1,
-                    itemBuilder: (BuildContext context, int index){
-                      return Container(
-                          child : ListViewSubjectWidget(index),
-                      );
-                    },
-                  ),
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.subjectTitle),
+      ),
+      body: Container(
+        width: realWidth,
+        height: realHeight,
+        color: Colors.lightGreenAccent,
+        margin: EdgeInsets.all(10),
+        child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount : _counter,
+                  itemBuilder: (BuildContext context, int index){
+                    return Container(
+                      child : ListViewSubjectWidget(index),
+                    );
+                  },
                 ),
-              ]
-          ),
+              ),
+            ]
         ),
+      ),
       floatingActionButton : UnicornDialer(
           backgroundColor: Color.fromRGBO(255, 255, 255, 0.6),
           parentButtonBackground: Colors.redAccent,
@@ -151,8 +187,8 @@ class ListViewSubjectWidget extends StatelessWidget{
                 ),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(5),
-                  child: const Text('프로젝트 설명 : ',
+                  padding: const EdgeInsets.all(0.1),
+                  child: const Text('단어장 설명 : ',
                       style : TextStyle(fontSize: 15),
                       textAlign : TextAlign.start),
                 ),
