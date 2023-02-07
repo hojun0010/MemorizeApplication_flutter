@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/TestSelection.dart';
+import 'package:myapp/Test.dart';
+import 'package:unicorndial/unicorndial.dart';
+import 'dart:ui';
 
 class SubjectSelectPage extends StatefulWidget {
   final String subjectTitle;
@@ -32,12 +34,42 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
 
   @override
   Widget build(BuildContext context) {
+    double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    double realWidth =window.physicalSize.width;
+    double realHeight = window.physicalSize.height;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    var childButtons = List<UnicornButton>.empty(growable: true);
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: "Choo choo",
+        currentButton: FloatingActionButton(
+          heroTag: "train",
+          backgroundColor: Colors.redAccent,
+          mini: true,
+          child: const Icon(Icons.train),
+          onPressed: () {},
+        ),));
+    childButtons.add(UnicornButton(
+        currentButton: FloatingActionButton(
+            heroTag: "airplane",
+            backgroundColor: Colors.greenAccent,
+            mini: true,
+            onPressed: () {  },
+            child: const Icon(Icons.airplanemode_active)),));
+
+    childButtons.add(UnicornButton(
+        currentButton: FloatingActionButton(
+            heroTag: "directions",
+            backgroundColor: Colors.blueAccent,
+            mini: true,
+            onPressed: () {  },
+            child: Icon(Icons.directions_car)),));
     return Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -45,6 +77,8 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
           title: Text(widget.subjectTitle),
         ),
         body: Container(
+          width: realWidth,
+          height: realHeight,
           color: Colors.lightGreenAccent,
           margin: EdgeInsets.all(10),
           child: Column(
@@ -53,25 +87,22 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
                   child: ListView.builder(
                     itemCount : _counter+1,
                     itemBuilder: (BuildContext context, int index){
-                      return ListViewSubjectWidget(index);
+                      return Container(
+                          child : ListViewSubjectWidget(index),
+                      );
                     },
                   ),
                 ),
-                Align(
-                  alignment : Alignment.bottomRight,
-                  child : Container(
-                    color : Colors.black12,
-                    padding: const EdgeInsets.all(8),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        _incrementCounter();
-                      },
-                    ),
-                  ),
-                )
               ]
           ),
-        )
+        ),
+      floatingActionButton : UnicornDialer(
+          backgroundColor: Color.fromRGBO(255, 255, 255, 0.6),
+          parentButtonBackground: Colors.redAccent,
+          orientation: UnicornOrientation.VERTICAL,
+          parentButton: Icon(Icons.add),
+          childButtons: childButtons
+      ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -93,7 +124,7 @@ class ListViewSubjectWidget extends StatelessWidget{
         color:Colors.transparent,
         child : InkWell(
             onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestSelectionPage(testTitle: counter.toString(),)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: counter.toString(),)));
             },
             borderRadius: const BorderRadius.all(
               Radius.circular(20.0),

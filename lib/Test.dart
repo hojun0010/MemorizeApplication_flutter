@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/ProjectSelection.dart';
 
@@ -19,6 +18,7 @@ class TestPageState extends State<TestPage>{
   bool secondOptionVisibility = false;
   List<int> repeatIndex = List<int>.empty(growable: true);
 
+  //설정에서 읽어오기?
   int allProblemNum = 3;
   List<List<String>> problemData = [["apple","애플","사과"],
   ["banana","바나나","바나나"],["tomato","토마토","토마토"]];
