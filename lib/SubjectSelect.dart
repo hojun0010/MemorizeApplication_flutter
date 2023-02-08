@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/Test.dart';
 import 'package:myapp/TestAdd.dart';
@@ -50,8 +51,11 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
   void initState(){
     super.initState();
     _subjectTitle = widget.subjectTitle;
+
     _counter = 0; //subject.txt 파일 읽어서 첫번째줄의 subject 개수를 갖고와야한다.
+
   }
+
   void _incrementCounter() {
     //과목 추가시 _counter 증가하고 subject.txt 에서 변경사항 저장
     setState(() {
@@ -62,6 +66,11 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+  _navigationAddTest(BuildContext context,String subjectTitle) async{
+    final result = await Navigator.push(
+      context, MaterialPageRoute(builder: (context) =>TestAddPage(subjectTitle: subjectTitle)),
+    );
   }
 
   @override
@@ -86,7 +95,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
         mini: true,
         child: const Icon(Icons.train),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>TestAddPage(subjectTitle: _subjectTitle)));
+          _navigationAddTest(context, _subjectTitle);
         },
       ),));
     childButtons.add(UnicornButton(
@@ -145,6 +154,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage> {
 }
 class ListViewSubjectWidget extends StatelessWidget{
   const ListViewSubjectWidget(this.counter, {super.key});
+
 
   final int counter;
 
