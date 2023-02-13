@@ -21,6 +21,7 @@ class TestAddPage extends StatefulWidget{
 class TestAddPageState extends State<TestAddPage>{
   late String subjectTitle;
   late Uint8List fileBytes;
+  late String fileBytesToString;
   String filePath = "";
   String fileName = "";
   final subjectNameController = TextEditingController();
@@ -70,7 +71,10 @@ class TestAddPageState extends State<TestAddPage>{
         mini: true,
         child: const Icon(Icons.train),
         onPressed: () {
-          Navigator.pop(context,)
+          
+          var list = "${subjectNameController.text}     ${subjectTestAmountPerDay.text}     ${subjectPerTestRepeatDay.text}     "
+              ""; //문제 파일을 읽고 총 몇개의 줄로 이루어져있는지 알아야한다.
+          Navigator.pop(context,list);
         },
       ),));
     childButtons.add(UnicornButton(
@@ -106,11 +110,12 @@ class TestAddPageState extends State<TestAddPage>{
                 child: Row(
                   children: [
                     Text("테스트 제목 : "),
-                    Expanded(
-                        child:TextField(
-                          decoration: InputDecoration(labelText: "프로젝트 명"),
-                          controller: subjectNameController,
-                        ),
+                    Container(
+                      width: realWidth*0.3,
+                      child: TextField(
+                        decoration: InputDecoration(labelText: "프로젝트 명", border : OutlineInputBorder()),
+                        controller: subjectNameController,
+                      ),
                     ),
                   ]
                 ),
@@ -129,15 +134,19 @@ class TestAddPageState extends State<TestAddPage>{
                 child: Row(
                     children: [
                       Text("하루 학습량 : "),
-                      TextField(
-                        decoration: InputDecoration(labelText: "단어 개수"),
-                        maxLength: 10,
-                        controller: subjectTestAmountPerDay,
+                      Container(
+                        width: 70,
+                        padding: const EdgeInsets.only(right: 20),
+                        child: TextField(
+                          decoration: InputDecoration(labelText: "단어 개수", border : OutlineInputBorder()),
+                          controller: subjectTestAmountPerDay,
+                        ),
                       ),
                       Text("복습 횟수: "),
-                      Expanded(
-                        child:TextField(
-                          decoration: InputDecoration(labelText: "3"),
+                      SizedBox(
+                        width: 50,
+                        child: TextField(
+                          decoration: InputDecoration(labelText: "3", border : OutlineInputBorder()),
                           controller: subjectPerTestRepeatDay,
                         ),
                       ),
@@ -167,6 +176,7 @@ class TestAddPageState extends State<TestAddPage>{
                               setState((){
                                 fileBytes = result.files.single.bytes!;
                                 fileName = result.files.single.name;
+                                fileBytesToString = String.fromCharCodes(fileBytes);
                                 //filePath = result.files.single.path;
                               });
                             }else{
