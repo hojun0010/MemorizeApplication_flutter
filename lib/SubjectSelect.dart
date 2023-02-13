@@ -58,10 +58,10 @@ class MyApp extends StatelessWidget {
 // }
 //subject.txt 예시
 //8(subject 개수)
-//1(추가된 순서)     jlpt1급     30(하루 학습량)     3(복습획수)     1000(총문제량)
-//2     jlpt2급     30(하루 학습량)     3(복습획수)     1000(총문제량)
-//3     jlpt3급     30(하루 학습량)     3(복습획수)     1000(총문제량)
-//4     jlpt4급     30(하루 학습량)     3(복습획수)     1000(총문제량)
+//jlpt1급     30(하루 학습량)     3(복습획수)     1000(총문제량)
+//jlpt2급     30(하루 학습량)     3(복습획수)     1000(총문제량)
+//jlpt3급     30(하루 학습량)     3(복습획수)     1000(총문제량)
+//jlpt4급     30(하루 학습량)     3(복습획수)     1000(총문제량)
 
 
 class SubjectSelectPage extends StatefulWidget {
@@ -73,33 +73,20 @@ class SubjectSelectPage extends StatefulWidget {
   SubjectSelectPageState createState() => SubjectSelectPageState();
 }
 class SubjectSelectPageState extends State<SubjectSelectPage>  {
-  late int _counter = 0;
+  late int _counter;
   late String _subjectTitle;
-  late List<String> contents;
+  late List<String> contents = List<String>.empty(growable: true);
 
   @override
   void initState(){
     super.initState();
     _subjectTitle = widget.subjectTitle;
-    _counter = 0;
     listInitState();
-
   }
   void listInitState() async{
     // contents = (CounterStorage()) as List<String>;
-    contents = ["2\n","1     jlpt4,5급     30      3     1000\n","2     jlpt3급     30     3     1000\n"];
+    contents = ["2\n","jlpt4,5급     30      3     1000\n","jlpt3급     30     3     1000\n"];
     _counter = int.parse(contents[0]); //subject.txt 파일 읽어서 첫번째줄의 subject 개수를 갖고와야한다.
-  }
-  void _incrementCounter() {
-    //과목 추가시 _counter 증가하고 subject.txt 에서 변경사항 저장
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
   }
   _navigationAddTest(BuildContext context,String subjectTitle) async{
     final result = await Navigator.push(
@@ -107,7 +94,8 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
     );
     if(result != null){
       setState(() {
-
+        contents.add(result);
+        _counter++;
       });
     }
   }
@@ -176,10 +164,10 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
                   itemCount : _counter,
                   itemBuilder: (BuildContext context, int index){
                     List<String> contentsLine = contents[index+1].split("     ");
-                    String subjectName = contentsLine[1];
-                    String perTestAmount = contentsLine[2];
-                    String repeatTestDay = contentsLine[3];
-                    String allProblemAmount = contentsLine[4];
+                    String subjectName = contentsLine[0];
+                    String perTestAmount = contentsLine[1];
+                    String repeatTestDay = contentsLine[2];
+                    String allProblemAmount = contentsLine[3];
                     return ListViewSubjectWidget(index+1,
                       subjectName: subjectName,perTestAmount: perTestAmount, repeatTestDay: repeatTestDay,allProblemAmount: allProblemAmount,);
                   },
@@ -248,7 +236,7 @@ class ListViewSubjectWidget extends StatelessWidget{
                 ),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(0.1),
+                  padding: const EdgeInsets.all(5),
                   margin : const EdgeInsets.only(left: 5),
                   child: Text('$perTestAmount / $repeatTestDay / $allProblemAmount ',
                       style : const TextStyle(fontSize: 10),

@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:unicorndial/unicorndial.dart';
 
 
@@ -24,10 +25,12 @@ class TestAddPageState extends State<TestAddPage>{
   late String fileBytesToString;
   String filePath = "";
   String fileName = "";
+  int length = 0;
   final subjectNameController = TextEditingController();
   final subjectTestAmountPerDay = TextEditingController();
   final subjectPerTestRepeatDay = TextEditingController();
 
+  //입력 필드 공백 불허
   naviatorPopTestAddPage(BuildContext context) async{
     if(subjectNameController.text == ""){
 
@@ -45,6 +48,8 @@ class TestAddPageState extends State<TestAddPage>{
   void initState(){
     super.initState();
     subjectTitle = widget.subjectTitle;
+    subjectTestAmountPerDay.text = "30";
+    subjectPerTestRepeatDay.text = "3";
   }
   @override
   void dispose(){
@@ -71,9 +76,8 @@ class TestAddPageState extends State<TestAddPage>{
         mini: true,
         child: const Icon(Icons.train),
         onPressed: () {
-          
-          var list = "${subjectNameController.text}     ${subjectTestAmountPerDay.text}     ${subjectPerTestRepeatDay.text}     "
-              ""; //문제 파일을 읽고 총 몇개의 줄로 이루어져있는지 알아야한다.
+          var list = "${subjectNameController.text}     ${subjectTestAmountPerDay.text}     ${subjectPerTestRepeatDay.text}     $length";
+          //문제 파일을 읽고 총 몇개의 줄로 이루어져있는지 알아야한다.
           Navigator.pop(context,list);
         },
       ),));
@@ -135,19 +139,21 @@ class TestAddPageState extends State<TestAddPage>{
                     children: [
                       Text("하루 학습량 : "),
                       Container(
-                        width: 70,
+                        width: realWidth*0.12,
                         padding: const EdgeInsets.only(right: 20),
                         child: TextField(
                           decoration: InputDecoration(labelText: "단어 개수", border : OutlineInputBorder()),
                           controller: subjectTestAmountPerDay,
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9]'))],
                         ),
                       ),
                       Text("복습 횟수: "),
                       SizedBox(
-                        width: 50,
+                        width: realWidth*0.05,
                         child: TextField(
                           decoration: InputDecoration(labelText: "3", border : OutlineInputBorder()),
                           controller: subjectPerTestRepeatDay,
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9]'))],
                         ),
                       ),
                     ]
@@ -176,10 +182,14 @@ class TestAddPageState extends State<TestAddPage>{
                               setState((){
                                 fileBytes = result.files.single.bytes!;
                                 fileName = result.files.single.name;
-                                fileBytesToString = String.fromCharCodes(fileBytes);
+                                fileBytesToString = String.fromCharCodes(fileBytes); //bytes 타입을 string으로
+                                length = fileBytesToString.split("\n").length;
                                 //filePath = result.files.single.path;
                               });
                             }else{
+                              if(result == null){
+                                fileName = "파일없음";
+                              }
                               //file picker cancel
                             }
                           },
