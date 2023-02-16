@@ -1,29 +1,20 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unicorndial/unicorndial.dart';
+import 'package:excel/excel.dart';
 
 
-class TestAddPage extends StatefulWidget{
-  TestAddPage({super.key, required this.subjectTitle});
-
-  final String subjectTitle;
+class SubjectAddPage extends StatefulWidget{
+  SubjectAddPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => TestAddPageState();
-
-
+  State<StatefulWidget> createState() => SubjectAddPageState();
 }
-class TestAddPageState extends State<TestAddPage>{
+class SubjectAddPageState extends State<SubjectAddPage>{
   late String subjectTitle;
-  late Uint8List fileBytes;
-  late String fileBytesToString;
-  String filePath = "";
   String fileName = "";
   int length = 0;
   final subjectNameController = TextEditingController();
@@ -47,7 +38,6 @@ class TestAddPageState extends State<TestAddPage>{
   @override
   void initState(){
     super.initState();
-    subjectTitle = widget.subjectTitle;
     subjectTestAmountPerDay.text = "30";
     subjectPerTestRepeatDay.text = "3";
   }
@@ -76,7 +66,7 @@ class TestAddPageState extends State<TestAddPage>{
         mini: true,
         child: const Icon(Icons.train),
         onPressed: () {
-          var list = "${subjectNameController.text}     ${subjectTestAmountPerDay.text}     ${subjectPerTestRepeatDay.text}     $length";
+          var list = [(subjectNameController.text),(subjectTestAmountPerDay.text),(subjectPerTestRepeatDay.text),"$length","$length"];
           //문제 파일을 읽고 총 몇개의 줄로 이루어져있는지 알아야한다.
           Navigator.pop(context,list);
         },
@@ -176,17 +166,21 @@ class TestAddPageState extends State<TestAddPage>{
                           onPressed: () async {
                             FilePickerResult? result = await FilePicker.platform.pickFiles(
                               type:FileType.custom,
-                              allowedExtensions: ['txt'],
+                              allowedExtensions: ['xlsx'], //excel 파일 한정 todo - txt 파일도 가능하게?
+                              allowMultiple: false,
                             );
                             if (result != null && result.files.isNotEmpty) {
                               setState((){
-                                fileBytes = result.files.single.bytes!;
                                 fileName = result.files.single.name;
-                                fileBytesToString = String.fromCharCodes(fileBytes); //bytes 타입을 string으로
-                                length = fileBytesToString.split("\n").length;
+                                var fileBytes = result.files.single.bytes!;
+                                var excel = Excel.decodeBytes(fileBytes);
+                                for(var table in excel.tables.keys){
+                                  length = excel.tables[table]!.maxRows;
+                                }
                                 //filePath = result.files.single.path;
                               });
                             }else{
+                              length = 0;
                               if(result == null){
                                 fileName = "파일없음";
                               }

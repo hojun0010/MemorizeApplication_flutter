@@ -4,8 +4,8 @@ import 'package:myapp/SubjectSelect.dart';
 
 class TestPage extends StatefulWidget{
   final String testTitle;
-  final int problemLength = 50;
-  const TestPage({Key? key, required this.testTitle}) : super(key : key);
+  final int queAmount;
+  const TestPage({Key? key, required this.testTitle, required this.queAmount}) : super(key : key);
 
   @override
   State<StatefulWidget> createState() => TestPageState();
@@ -19,7 +19,7 @@ class TestPageState extends State<TestPage>{
   List<int> repeatIndex = List<int>.empty(growable: true);
 
   //설정에서 읽어오기?
-  int allProblemNum = 3;
+
   List<List<String>> problemData = [["apple","애플","사과"],
   ["banana","바나나","바나나"],["tomato","토마토","토마토"]];
 
@@ -35,6 +35,9 @@ class TestPageState extends State<TestPage>{
 
   @override
   Widget build(BuildContext context){
+    String allProblemNumString = widget.queAmount.toString();
+    int allProblemNum = int.parse(allProblemNumString);
+
     void PassState(){
       setState(() {
         //이전페이지로 시간, 등을 전달
@@ -137,13 +140,13 @@ class TestPageState extends State<TestPage>{
                             style:ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(30)),
                             ),
-                            child: Text('1번옵션',style : TextStyle(fontSize: 15))),
+                            child: const Text('1번옵션',style : TextStyle(fontSize: 15))),
                         OutlinedButton(
                             onPressed: secondOptionVisibleChange,
                             style:ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(30)),
                             ),
-                            child: Text('2번옵션',style : TextStyle(fontSize: 15))),
+                            child: const Text('2번옵션',style : TextStyle(fontSize: 15))),
                       ],
                     ),
                   ),
@@ -156,13 +159,13 @@ class TestPageState extends State<TestPage>{
                             style:ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(30)),
                             ),
-                            child: Text('모르겠음',style : TextStyle(fontSize: 15))),
+                            child: const Text('모르겠음',style : TextStyle(fontSize: 15))),
                         OutlinedButton(
                             onPressed: PassState,
                             style:ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(30)),
                             ),
-                            child: Text('통과  ',style : TextStyle(fontSize: 15))),
+                            child: const Text('통과  ',style : TextStyle(fontSize: 15))),
                       ],
                     ),
                   )

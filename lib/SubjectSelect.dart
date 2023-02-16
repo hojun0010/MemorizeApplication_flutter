@@ -1,11 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/Test.dart';
-import 'package:myapp/TestAdd.dart';
+import 'package:myapp/SubjectAdd.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'dart:ui';
-import 'dart:io';
+import 'package:excel/excel.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
@@ -25,38 +26,11 @@ class MyApp extends StatelessWidget {
         // you want
         primarySwatch: Colors.blue,
       ),
-      home: const SubjectSelectPage(subjectTitle: '과목 선택'),
+      home: const SubjectSelectPage(),
     );
   }
 }
-// class CounterStorage {
-//   Future<String> get _localPath async {
-//     final directory = await getApplicationDocumentsDirectory();
-//
-//     return directory.path;
-//   }
-//
-//   Future<File> get _localFile async {
-//     final path = await _localPath;
-//     return File('$path/subject.txt');
-//   }
-//
-//   Future<List<String>> readContents() async {
-//     final file = await _localFile;
-//
-//     // Read the file
-//     final contents = file.readAsLinesSync();
-//
-//     return contents;
-//   }
-//   // Future<File> writeContents(String ) async {
-//   //   final file = await _localFile;
-//   //
-//   //   // Write the file
-//   //   return file.writeAsString('$');
-//   // }
-// }
-//subject.txt 예시
+//subject.excel 예시
 //8(subject 개수)
 //jlpt1급     30(하루 학습량)     3(복습획수)     1000(총문제량)
 //jlpt2급     30(하루 학습량)     3(복습획수)     1000(총문제량)
@@ -65,42 +39,61 @@ class MyApp extends StatelessWidget {
 
 
 class SubjectSelectPage extends StatefulWidget {
-  final String subjectTitle;
-  const SubjectSelectPage({Key? key, required this.subjectTitle}) : super(key: key);
-
+  const SubjectSelectPage({Key? key}) : super(key: key);
 
   @override
   SubjectSelectPageState createState() => SubjectSelectPageState();
 }
+
 class SubjectSelectPageState extends State<SubjectSelectPage>  {
-  late int _counter;
-  late String _subjectTitle;
-  late List<String> contents = List<String>.empty(growable: true);
+  late int _counter = 0;
+  late List<List<String>> contents = List<List<String>>.empty(growable: true);
 
   @override
   void initState(){
     super.initState();
-    _subjectTitle = widget.subjectTitle;
-    listInitState();
+    _initExcelData();
   }
-  void listInitState() async{
-    // contents = (CounterStorage()) as List<String>;
-    contents = ["2\n","jlpt4,5급     30      3     1000\n","jlpt3급     30     3     1000\n"];
-    _counter = int.parse(contents[0]); //subject.txt 파일 읽어서 첫번째줄의 subject 개수를 갖고와야한다.
+  //flutter to read xlsx file in asset folder
+  void _initExcelData() async {
+    ByteData data = await rootBundle.load("assets/Subject.xlsx");
+    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    var excel = Excel.decodeBytes(bytes);
+
+    for (var table in excel.tables.keys) {
+      _counter = excel.tables[table]!.maxRows;
+      for (var row in excel.tables[table]!.rows) { //엑셀파일을 한줄씩 읽어서
+        List<String> subjectInfoData2StringList = List<String>.empty(growable: true);
+        for(var cell in row){
+          subjectInfoData2StringList.add(cell.toString());
+        }
+        contents.add(subjectInfoData2StringList);
+      }
+    }
   }
-  _navigationAddTest(BuildContext context,String subjectTitle) async{
+  //subject 추가에 따라 excel 파일 업데이트
+  void updataExcelData(List<String> list) async {
+    ByteData data = await rootBundle.load("assets/subject.xlsx");
+    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    var excel = Excel.decodeBytes(bytes);
+
+    var defaultSheet = excel.getDefaultSheet();
+    Sheet sheetObject = excel['$defaultSheet'];
+    sheetObject.appendRow(list);
+  }
+  //SubjectSelection page는 SubjectAdd page가 pop 되는것을 기다린다.
+  _navigationSubjectAdd(BuildContext context) async{
     final result = await Navigator.push(
-      context, MaterialPageRoute(builder: (context) =>TestAddPage(subjectTitle: subjectTitle)),
+      context, MaterialPageRoute(builder: (context) =>SubjectAddPage()),
     );
     if(result != null){
       setState(() {
         contents.add(result);
         _counter++;
       });
+      updataExcelData(result);
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     double pixelRatio = MediaQuery.of(context).devicePixelRatio;
@@ -113,8 +106,6 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
 
-
-
     var childButtons = List<UnicornButton>.empty(growable: true);
 
     childButtons.add(UnicornButton(
@@ -126,7 +117,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
         mini: true,
         child: const Icon(Icons.train),
         onPressed: () {
-          _navigationAddTest(context, _subjectTitle);
+          _navigationSubjectAdd(context);
         },
       ),));
     childButtons.add(UnicornButton(
@@ -150,27 +141,32 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.subjectTitle),
+        title: Text("과목 선택"),
       ),
       body: Container(
         width: realWidth,
         height: realHeight,
-        color: Colors.lightGreenAccent,
+        color: Colors.white70,
         margin: EdgeInsets.all(10),
         child: Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemCount : _counter,
-                  itemBuilder: (BuildContext context, int index){
-                    List<String> contentsLine = contents[index+1].split("     ");
-                    String subjectName = contentsLine[0];
-                    String perTestAmount = contentsLine[1];
-                    String repeatTestDay = contentsLine[2];
-                    String allProblemAmount = contentsLine[3];
-                    return ListViewSubjectWidget(index+1,
-                      subjectName: subjectName,perTestAmount: perTestAmount, repeatTestDay: repeatTestDay,allProblemAmount: allProblemAmount,);
-                  },
+                child: FutureBuilder(
+                  builder: (context, snapshot) {
+                    return ListView.builder(
+                      itemCount : _counter,
+                      itemBuilder: (BuildContext context, int index){
+                        List<String> contentsLine = contents[index]; //subject.xlsx의 row당 데이터 리스트
+                        String subjectName = contentsLine[0]; //과목명
+                        int todayQueAmount = int.parse(contentsLine[1]); //한번 학습때 새롭게 배울 문제 량
+                        int reviewQueAmount = int.parse(contentsLine[2]); //오늘 학습한 내용을 며칠동안 반복할것인가 -> todo sm2알고리즘을 이용해 학습자의 체감 난이도 별로의 복습 횟수를 결정
+                        int remainQueAmount =int.parse(contentsLine[3]);
+                        int allQueAmount = int.parse(contentsLine[4]); //총 문제량
+                        return ListViewSubjectWidget(index+1,
+                          subjectName: subjectName,todayQueAmount: todayQueAmount, reviewQueAmount: reviewQueAmount,remainQueAmount: remainQueAmount, allQueAmount : allQueAmount,);
+                      },
+                    );
+                  }
                 ),
               ),
             ]
@@ -189,27 +185,29 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
 }
 class ListViewSubjectWidget extends StatelessWidget{
   const ListViewSubjectWidget(this.counter, {
-    super.key, required this.subjectName, required this.perTestAmount, required this.repeatTestDay, required this.allProblemAmount});
+    super.key, required this.subjectName, required this.todayQueAmount, required this.reviewQueAmount, required this.remainQueAmount, required this.allQueAmount});
 
   final int counter;
-  final String subjectName;
-  final String perTestAmount;
-  final String repeatTestDay;
-  final String allProblemAmount;
+  final String subjectName; //과목명
+  final int todayQueAmount; //하루에 테스트할 개수
+  final int reviewQueAmount; //오늘 학습한 내용을 며칠동안 복습할것인가
+  final int remainQueAmount; //남은 문제 개수
+  final int allQueAmount; //현재 과목에 저장된 총 문제 개수
 
   @override
   Widget build(BuildContext context){
     return Container(
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color : Colors.green,
+          color : Colors.white38,
           borderRadius: BorderRadius.circular(15)
       ),
       child: Material(
         color:Colors.transparent,
         child : InkWell(
             onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: counter.toString(),)));
+              int queAmount = todayQueAmount > remainQueAmount ? remainQueAmount : todayQueAmount;
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: counter.toString(), queAmount: queAmount,)));
             },
             borderRadius: const BorderRadius.all(
               Radius.circular(20.0),
@@ -238,9 +236,19 @@ class ListViewSubjectWidget extends StatelessWidget{
                   width: double.infinity,
                   padding: const EdgeInsets.all(5),
                   margin : const EdgeInsets.only(left: 5),
-                  child: Text('$perTestAmount / $repeatTestDay / $allProblemAmount ',
-                      style : const TextStyle(fontSize: 10),
-                      textAlign : TextAlign.start),
+                  child: Row(
+                    children: [
+                      Text('$todayQueAmount / ',
+                          style : const TextStyle(fontSize: 15, color: Colors.redAccent),
+                          textAlign : TextAlign.start, ),
+                      Text('$remainQueAmount / ',
+                          style : const TextStyle(fontSize: 15, color : Colors.greenAccent),
+                          textAlign : TextAlign.start),
+                      Text('$allQueAmount',
+                          style : const TextStyle(fontSize: 15, color:  Colors.blue,),
+                          textAlign : TextAlign.start),
+                    ],
+                  ),
                 ),
               ],
             )
