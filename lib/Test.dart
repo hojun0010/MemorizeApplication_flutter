@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:myapp/SubjectSelect.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:excel/excel.dart';
 
 class TestPage extends StatefulWidget{
   final String testTitle;
@@ -17,21 +18,39 @@ class TestPageState extends State<TestPage>{
   bool firstOptionVisibility = false;
   bool secondOptionVisibility = false;
   List<int> repeatIndex = List<int>.empty(growable: true);
+  List<List<String>> problemData = List<List<String>>.empty(growable: true);
 
-  //설정에서 읽어오기?
+  @override
+  void initState(){
+    super.initState();
+    _initExcelData();
+  }
+  //웹에서는 작동안함
+  //모바일에서는 과목 생성시 과목명과 같은 xlsx 파일을 생성
+  //그 파일을 읽고 테스트 데이터를 생성한다.
+  void _initExcelData() async {
+    final testTitle = widget.testTitle;
+    debugPrint(testTitle);
+    ByteData data = await rootBundle.load("assets/$testTitle.xlsx");
+    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    var excel = Excel.decodeBytes(bytes);
 
-  List<List<String>> problemData = [["apple","애플","사과"],
-  ["banana","바나나","바나나"],["tomato","토마토","토마토"]];
-
-  // 각 과목에 대한 모든 설정은 '과목명.txt'파일의 첫번째줄에 무조건 저장한다.
-  // 옵션명 -> 문제길이 회독수 등등
-  // Future<List> makeProblemData(int problemLength) async {
-  //   var li = List.empty(growable: true);
-  //   for(int i = 0; i < problemLength; i++){
-  //     li.add(i);
-  //   }
-  //   return li;
-  // }
+    for (var table in excel.tables.keys) {
+      for (var row in excel.tables[table]!.rows) { //엑셀파일을 한줄씩 읽어서
+        List<String> testData2StringList = List<String>.empty(growable: true);
+        for(int i = 0; i < 5; i++){
+          final value = row[i]?.value.toString();
+          debugPrint(value);
+          testData2StringList.add(value!);
+        }
+        // for(var cell in row){
+        //   subjectInfoData2StringList.add(cell..toString());
+        //   debugPrint(cell?.value);
+        // }
+        problemData.add(testData2StringList);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context){

@@ -9,6 +9,7 @@ import 'package:excel/excel.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 
+
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
 
 void main() {
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//subject.excel 예시
+//subject.xlsx 예시
 //8(subject 개수)
 //jlpt1급     30(하루 학습량)     3(복습획수)     1000(총문제량)
 //jlpt2급     30(하루 학습량)     3(복습획수)     1000(총문제량)
@@ -61,19 +62,26 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
     var excel = Excel.decodeBytes(bytes);
 
     for (var table in excel.tables.keys) {
-      _counter = excel.tables[table]!.maxRows;
+      setState(() {
+        _counter = excel.tables[table]!.maxRows;
+      });
       for (var row in excel.tables[table]!.rows) { //엑셀파일을 한줄씩 읽어서
         List<String> subjectInfoData2StringList = List<String>.empty(growable: true);
-        for(var cell in row){
-          subjectInfoData2StringList.add(cell.toString());
+        for(int i = 0; i < 5; i++){
+          final value = row[i]?.value.toString();
+          subjectInfoData2StringList.add(value!);
         }
+        // for(var cell in row){
+        //   subjectInfoData2StringList.add(cell..toString());
+        //   debugPrint(cell?.value);
+        // }
         contents.add(subjectInfoData2StringList);
       }
     }
   }
   //subject 추가에 따라 excel 파일 업데이트
   void updataExcelData(List<String> list) async {
-    ByteData data = await rootBundle.load("assets/subject.xlsx");
+    ByteData data = await rootBundle.load("assets/Subject.xlsx");
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var excel = Excel.decodeBytes(bytes);
 
@@ -163,8 +171,8 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
                         int remainQueAmount =int.parse(contentsLine[3]);
                         int allQueAmount = int.parse(contentsLine[4]); //총 문제량
                         return ListViewSubjectWidget(index+1,
-                          subjectName: subjectName,todayQueAmount: todayQueAmount, reviewQueAmount: reviewQueAmount,remainQueAmount: remainQueAmount, allQueAmount : allQueAmount,);
-                      },
+                          subjectName: subjectName,todayQueAmount: todayQueAmount, reviewQueAmount: reviewQueAmount,remainQueAmount: remainQueAmount, allQueAmount : allQueAmount);
+                      }
                     );
                   }
                 ),
@@ -207,7 +215,8 @@ class ListViewSubjectWidget extends StatelessWidget{
         child : InkWell(
             onTap: (){
               int queAmount = todayQueAmount > remainQueAmount ? remainQueAmount : todayQueAmount;
-              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: counter.toString(), queAmount: queAmount,)));
+              debugPrint(queAmount.toString());
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>TestPage(testTitle: subjectName, queAmount: queAmount,)));
             },
             borderRadius: const BorderRadius.all(
               Radius.circular(20.0),
