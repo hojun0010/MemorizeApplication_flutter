@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:myapp/SubjectSelect.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:excel/excel.dart';
+import 'package:path_provider/path_provider.dart';
 
 class TestPage extends StatefulWidget{
   final String testTitle;
@@ -31,8 +34,13 @@ class TestPageState extends State<TestPage>{
   void _initExcelData() async {
     final testTitle = widget.testTitle;
     debugPrint(testTitle);
-    ByteData data = await rootBundle.load("assets/$testTitle.xlsx");
-    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    // ByteData data = await rootBundle.load("assets/$testTitle.xlsx");
+    // var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+    final path = await getApplicationDocumentsDirectory();
+    var file = "$path/$testTitle.xlsx";
+
+    var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
 
     for (var table in excel.tables.keys) {

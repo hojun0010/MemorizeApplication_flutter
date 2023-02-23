@@ -32,7 +32,6 @@ class SubjectAddPageState extends State<SubjectAddPage>{
     }else{
 
     }
-
   }
 
   @override

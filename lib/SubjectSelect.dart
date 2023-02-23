@@ -80,6 +80,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
     }
   }
   //subject 추가에 따라 excel 파일 업데이트
+  //todo internel storage에 대해 적용해야된다.
   void updataExcelData(List<String> list) async {
     ByteData data = await rootBundle.load("assets/Subject.xlsx");
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
@@ -88,6 +89,7 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
     var defaultSheet = excel.getDefaultSheet();
     Sheet sheetObject = excel['$defaultSheet'];
     sheetObject.appendRow(list);
+    debugPrint(list.toString());
   }
   //SubjectSelection page는 SubjectAdd page가 pop 되는것을 기다린다.
   _navigationSubjectAdd(BuildContext context) async{
@@ -98,8 +100,9 @@ class SubjectSelectPageState extends State<SubjectSelectPage>  {
       setState(() {
         contents.add(result);
         _counter++;
+        updataExcelData(result);
       });
-      updataExcelData(result);
+
     }
   }
   @override
